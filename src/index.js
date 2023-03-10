@@ -4,7 +4,8 @@ import {
   Decimal,
   Bucket,
   Expression,
-  ResourceAddress
+  ResourceAddress,
+  NonFungibleId
 } from '@radixdlt/radix-dapp-toolkit'
 const dAppId = 'account_tdx_b_1pryv0jqk6eqwfd90hwjjxgy6pmrwuwzp2tkqycp0flqqlgljf3'
 
@@ -49,7 +50,8 @@ document.getElementById('instantiateComponent').onclick = async function () {
 
   let manifest = new ManifestBuilder()
     .callMethod(accountAddress, "create_proof", [ResourceAddress("resource_tdx_b_1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq8z96qp")])
-    .callFunction(packageAddress, "GumballMachine", "instantiate_gumball_machine", [Decimal("200")])
+    .callFunction(packageAddress, "GumballMachine", "instantiate_gumball_machine", [Decimal("400")])
+    .callMethod(accountAddress, "deposit_batch", [Expression("ENTIRE_WORKTOP")])
     .build()
     .toString();
   console.log("Instantiate Manifest: ", manifest)
@@ -102,7 +104,7 @@ document.getElementById('buyGumball').onclick = async function () {
   let manifest = new ManifestBuilder()
     .withdrawFromAccountByAmount(accountAddress, 400, "resource_tdx_b_1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq8z96qp")
     .takeFromWorktopByAmount(400, "resource_tdx_b_1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq8z96qp", "xrd_bucket")
-    .callMethod(componentAddress, "buy_gumball", [Bucket("xrd_bucket")])
+    .callMethod(componentAddress, "buy_gumball", [Decimal("1"),Bucket("xrd_bucket")])
     .callMethod(accountAddress, "deposit_batch", [Expression("ENTIRE_WORKTOP")])
     .build()
     .toString();
@@ -148,8 +150,8 @@ document.getElementById('instantiateComponentNFT').onclick = async function () {
   let packageAddress = document.getElementById("packageAddressNFT").value;
 
   let manifest = new ManifestBuilder()
-    .callMethod(accountAddress, "create_proof", [ResourceAddress("resource_tdx_b_1qzurv2rh6kyze3d3yhcpphdamme9nfkm6hj963lv4l2qc6hu3w")])
-    .callFunction(packageAddress, "HelloNft", "instantiate_component", [ResourceAddress("resource_tdx_b_1qzurv2rh6kyze3d3yhcpphdamme9nfkm6hj963lv4l2qc6hu3w")])
+    .callMethod(accountAddress, "create_proof", [ResourceAddress("resource_tdx_b_1qppa8892w06hk0qz4uaxc7fpjc3vkxl44vpk5zmaqwqqyjtv9q")])
+    .callFunction(packageAddress, "HelloNft", "instantiate_component", [ResourceAddress("resource_tdx_b_1qppa8892w06hk0qz4uaxc7fpjc3vkxl44vpk5zmaqwqqyjtv9q")])
     .build()
     .toString();
   console.log("Instantiate Manifest: ", manifest)
@@ -199,8 +201,8 @@ document.getElementById('instantiateComponentNFT').onclick = async function () {
 document.getElementById('buyGumballNFT').onclick = async function () {
 
   let manifest = new ManifestBuilder()
-    .withdrawFromAccountByAmount(accountAddress, 1, "resource_tdx_b_1qzurv2rh6kyze3d3yhcpphdamme9nfkm6hj963lv4l2qc6hu3w")
-    .takeFromWorktopByAmount(1, "resource_tdx_b_1qzurv2rh6kyze3d3yhcpphdamme9nfkm6hj963lv4l2qc6hu3w", "sljg_bucket")
+    .withdrawFromAccountByAmount(accountAddress, 1, "resource_tdx_b_1qppa8892w06hk0qz4uaxc7fpjc3vkxl44vpk5zmaqwqqyjtv9q")
+    .takeFromWorktopByAmount(1, "resource_tdx_b_1qppa8892w06hk0qz4uaxc7fpjc3vkxl44vpk5zmaqwqqyjtv9q", "sljg_bucket")
     .callMethod(componentAddress, "buy_random_card", [Bucket("sljg_bucket")])
     .callMethod(accountAddress, "deposit_batch", [Expression("ENTIRE_WORKTOP")])
     .build()
@@ -245,9 +247,9 @@ document.getElementById('buyGumballNFT').onclick = async function () {
 document.getElementById('buySpecialNFT').onclick = async function () {
 
   let manifest = new ManifestBuilder()
-    .withdrawFromAccountByAmount(accountAddress, 5, "resource_tdx_b_1qzurv2rh6kyze3d3yhcpphdamme9nfkm6hj963lv4l2qc6hu3w")
-    .takeFromWorktopByAmount(5, "resource_tdx_b_1qzurv2rh6kyze3d3yhcpphdamme9nfkm6hj963lv4l2qc6hu3w", "sljg_bucket")
-    .callMethod(componentAddress, "buy_special_card", [2,Bucket("sljg_bucket")])
+    .withdrawFromAccountByAmount(accountAddress, 6, "resource_tdx_b_1qppa8892w06hk0qz4uaxc7fpjc3vkxl44vpk5zmaqwqqyjtv9q") 
+    .takeFromWorktopByAmount(6, "resource_tdx_b_1qppa8892w06hk0qz4uaxc7fpjc3vkxl44vpk5zmaqwqqyjtv9q", "sljg_bucket")
+    .callMethod(componentAddress, "buy_special_card", [NonFungibleId("#1#"),Bucket("sljg_bucket")]) //insteaof of passing 2, we need to define the NonFungibleLocalId by importing check discord
     .callMethod(accountAddress, "deposit_batch", [Expression("ENTIRE_WORKTOP")])
     .build()
     .toString();
