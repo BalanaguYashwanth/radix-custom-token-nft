@@ -95,22 +95,35 @@ mod gumball_machine {
             })
         }
 
-        pub fn destroy_tokens(&mut self, badge: Bucket, tokens: Bucket) {
+        pub fn destroy_tokens(&mut self, tokens: Bucket) {
             assert!(
-                badge.resource_address() == self.admin_badge,
-                "Cannot destroy the contents of this tokens or coins"
+                tokens.resource_address() == self.gumballs.resource_address(),
+                "Cannot destroy the contents of this token or coin"
             );
             self.admin_mint_badge.authorize(|| {
                 tokens.burn();
             })
         }
 
+        // pub fn destroy_tokens(&mut self, badge:Bucket, tokens: Bucket) {
+        //     assert!(
+        //         tokens.resource_address() == self.gumballs.resource_address(),
+        //         "Cannot destroy the contents of this token or coin"
+        //     );
+        //     assert!(
+        //         badge.resource_address() == self.admin_badge,
+        //         "Required badge to burn"
+        //     );
+        //     self.admin_mint_badge.authorize(|| {
+        //         tokens.burn();
+        //     })
+        // }
+
         pub fn buy_gumball(
             &mut self,
             gumball_tokens: Decimal,
             mut payment: Bucket
         ) -> (Bucket, Bucket) {
-            info!("amount---{}", payment.amount());
             assert!(
                 payment.amount() >= gumball_tokens * self.price,
                 "Not enough tokens or coins sent!"
@@ -246,7 +259,7 @@ mod hello_nft {
         pub fn buy_random_card(&mut self, mut payment: Bucket) -> (Bucket, Bucket) {
             assert!(
                 payment.resource_address() == self.accepted_payment_token,
-                "send correct token"
+                "Please send correct token"
             );
 
             // Take our price out of the payment bucket
@@ -271,62 +284,7 @@ mod hello_nft {
             (nft_bucket, payment)
         }
 
-        //     pub fn upgrade_my_card(&mut self, nft_bucket: Bucket) -> Bucket {
-        //         assert!(
-        //             nft_bucket.amount() == dec!("1"),
-        //             "We can upgrade only one card each time"
-        //         );
-
-        //         // Get and update the mutable data
-        //         let mut non_fungible_data: MagicCard = nft_bucket.non_fungible().data();
-        //         non_fungible_data.level += 1;
-
-        //         self.random_card_mint_badge
-        //             .authorize(|| nft_bucket.non_fungible().update_data(non_fungible_data));
-
-        //         nft_bucket
-        //     }
-
-        //     pub fn fuse_my_cards(&mut self, nft_bucket: Bucket) -> Bucket {
-        //         assert!(
-        //             nft_bucket.amount() == dec!("2"),
-        //             "You need to pass 2 NFTs for fusion"
-        //         );
-        //         assert!(
-        //             nft_bucket.resource_address() == self.random_card_resource_address,
-        //             "Only random cards can be fused"
-        //         );
-
-        //         // Retrieve the NFT data.
-        //         let card1: MagicCard = nft_bucket.non_fungibles()[0].data();
-        //         let card2: MagicCard = nft_bucket.non_fungibles()[1].data();
-        //         let new_card = Self::fuse_magic_cards(card1, card2);
-
-        //         // Burn the original cards
-        //         self.random_card_mint_badge.authorize(|| {
-        //             nft_bucket.burn();
-        //         });
-
-        //         // Mint a new one.
-        //         let new_non_fungible_bucket = self.random_card_mint_badge.authorize(|| {
-        //             borrow_resource_manager!(self.random_card_resource_address).mint_non_fungible(
-        //                 &NonFungibleLocalId::Integer(self.random_card_id_counter.into()),
-        //                 new_card,
-        //             )
-        //         });
-        //         self.random_card_id_counter += 1;
-
-        //         new_non_fungible_bucket
-        //     }
-
-        //     fn fuse_magic_cards(card1: MagicCard, card2: MagicCard) -> MagicCard {
-        //         MagicCard {
-        //             color: card1.color,
-        //             rarity: card2.rarity,
-        //             level: card1.level + card2.level,
-        //         }
-        //     }
-
+      
         fn random_color(seed: u64) -> Color {
             match seed % 5 {
                 0 => Color::White,
@@ -349,11 +307,3 @@ mod hello_nft {
         }
     }
 }
-
-// let component = Self {
-//     my_token_resource_address: my_token.resource_address(),
-// }
-// .instantiate()
-// .globalize();
-
-// (component, my_token)

@@ -28,7 +28,7 @@
 
   <h2>2. Instantiate Gumball Machine</h2>
   <input type="text" placeholder="Package address" id="packageAddress" />
-  <!-- <input type="text" placeholder="Gumball Symbol" id="flavor"> -->
+  <input type="text" placeholder="Set Gumball Price" id="set_price">
   <p><button id="instantiateComponent">Instantiate component</button></p>
   <div class="container">
     <p>Component Address: <span id="componentAddress"></span></p>
@@ -37,7 +37,19 @@
 
 
   <h2>3. Buy Gumball</h2>
+  <input type="text" placeholder="Enter XRD amount to purchase token" id="purchase">
+  <input type="text" placeholder="Enter number of tokens to buy" id="count_gumballs">
   <p><button id="buyGumball">Buy JUNGLER</button></p>
+ 
+  <div class="container">
+    <p>Receipt:<br>
+    <pre id="receipt"></pre>
+    </p>
+  </div>
+
+  <h2>3. Burn Gumball</h2>
+  <input type="text" placeholder="Enter number of tokens to burn" id="burn_gumballs">
+  <p><button id="burnGumball">Destroy JUNGLER</button></p>
   <div class="container">
     <p>Receipt:<br>
     <pre id="receipt"></pre>
@@ -47,7 +59,7 @@
 
   <h2>2. Instantiate NFTs</h2>
   <input type="text" placeholder="Package address NFT" id="packageAddressNFT" />
-  <!-- <input type="text" placeholder="Gumball Symbol" id="flavor"> -->
+  
   <p><button id="instantiateComponentNFT">Instantiate component</button></p>
   <div class="container">
     <p>Component Address: <span id="componentAddressNFT"></span></p>
@@ -64,6 +76,9 @@
   </div>
 
   <h2>3. Buy Special NFT</h2>
+  <input type="text" placeholder="Enter the amount of tokens to buy for special card" id="count_tokens_buy_special_card" />
+  <input type="text" placeholder="Nonfungible id of special card" id="localID_special_card">
+
   <p><button id="buySpecialNFT">Buy Special NFT</button></p>
   <div class="containerSpecialNFT">
     <p>Receipt Special NFT:<br>

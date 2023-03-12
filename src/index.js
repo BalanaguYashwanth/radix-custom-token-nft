@@ -47,10 +47,11 @@ let xrdAddress = "resource_tdx_b_1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq8z
 // ************ Instantiate component and fetch component and resource addresses *************
 document.getElementById('instantiateComponent').onclick = async function () {
   let packageAddress = document.getElementById("packageAddress").value;
+  const set_price = document.getElementById("set_price").value;
 
   let manifest = new ManifestBuilder()
-    .callMethod(accountAddress, "create_proof", [ResourceAddress("resource_tdx_b_1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq8z96qp")])
-    .callFunction(packageAddress, "GumballMachine", "instantiate_gumball_machine", [Decimal("400")])
+    .callMethod(accountAddress, "create_proof", [ResourceAddress(xrdAddress)])
+    .callFunction(packageAddress, "GumballMachine", "instantiate_gumball_machine", [Decimal(set_price)])
     .callMethod(accountAddress, "deposit_batch", [Expression("ENTIRE_WORKTOP")])
     .build()
     .toString();
@@ -98,13 +99,15 @@ document.getElementById('instantiateComponent').onclick = async function () {
   console.log('componentAddress---', componentAddress,resourceAddress)
 }
 
-
 document.getElementById('buyGumball').onclick = async function () {
 
+  const get_amount_of_xrd = document.getElementById("purchase").value;
+  const get_count_gumballs = document.getElementById("count_gumballs").value;
+
   let manifest = new ManifestBuilder()
-    .withdrawFromAccountByAmount(accountAddress, 400, "resource_tdx_b_1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq8z96qp")
-    .takeFromWorktopByAmount(400, "resource_tdx_b_1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq8z96qp", "xrd_bucket")
-    .callMethod(componentAddress, "buy_gumball", [Decimal("1"),Bucket("xrd_bucket")])
+    .withdrawFromAccountByAmount(accountAddress, get_amount_of_xrd,xrdAddress)
+    .takeFromWorktopByAmount(get_amount_of_xrd,xrdAddress, "xrd_bucket")
+    .callMethod(componentAddress, "buy_gumball", [Decimal(get_count_gumballs),Bucket("xrd_bucket")])
     .callMethod(accountAddress, "deposit_batch", [Expression("ENTIRE_WORKTOP")])
     .build()
     .toString();
@@ -141,17 +144,59 @@ document.getElementById('buyGumball').onclick = async function () {
   })
   console.log('buyGumball Committed Details Receipt', commitReceipt)
 
+  resourceAddress = commitReceipt.details.receipt.state_updates.created_substates[1].substate_data.resource_amount.resource_address
   // Show the receipt on the DOM
   document.getElementById('receipt').innerText = JSON.stringify(commitReceipt.details.receipt, null, 2);
 };
 
+document.getElementById("burnGumball").onclick = async function(){
+
+  const count_burn_gumballs = document.getElementById("burn_gumballs").value;
+  let manifest = new ManifestBuilder()
+  // .callMethod(accountAddress, "create_proof", [ResourceAddress(resourceAddress)])
+  .withdrawFromAccountByAmount(accountAddress, count_burn_gumballs, resourceAddress)
+  .takeFromWorktopByAmount(count_burn_gumballs, resourceAddress, "sljg_bucket")
+  .callMethod(componentAddress, "destroy_tokens", [Bucket("sljg_bucket")])
+  .callMethod(accountAddress, "deposit_batch", [Expression("ENTIRE_WORKTOP")])
+  .build()
+  .toString();
+  console.log('buy_random_card manifest: ', manifest)
+
+  const result = await rdt
+  .sendTransaction({
+    transactionManifest: manifest,
+    version: 1,
+  })
+
+if (result.isErr()) throw result.error
+
+let status = await transactionApi.transactionStatus({
+  transactionStatusRequest: {
+    intent_hash_hex: result.value.transactionIntentHash
+  }
+});
+console.log('Buy NFT TransactionAPI transaction/status: ', status)
+
+// fetch commit reciept from gateway api 
+let commitReceipt = await transactionApi.transactionCommittedDetails({
+  transactionCommittedDetailsRequest: {
+    transaction_identifier: {
+      type: 'intent_hash',
+      value_hex: result.value.transactionIntentHash
+    }
+  }
+})
+console.log('Buy Gumball Committed Details Receipt', commitReceipt)
+
+console.log("Buy NFT getMethods Result: ", result)
+}
 
 document.getElementById('instantiateComponentNFT').onclick = async function () {
   let packageAddress = document.getElementById("packageAddressNFT").value;
 
   let manifest = new ManifestBuilder()
-    .callMethod(accountAddress, "create_proof", [ResourceAddress("resource_tdx_b_1qppa8892w06hk0qz4uaxc7fpjc3vkxl44vpk5zmaqwqqyjtv9q")])
-    .callFunction(packageAddress, "HelloNft", "instantiate_component", [ResourceAddress("resource_tdx_b_1qppa8892w06hk0qz4uaxc7fpjc3vkxl44vpk5zmaqwqqyjtv9q")])
+    .callMethod(accountAddress, "create_proof", [ResourceAddress(resourceAddress)])
+    .callFunction(packageAddress, "HelloNft", "instantiate_component", [ResourceAddress(resourceAddress)])
     .build()
     .toString();
   console.log("Instantiate Manifest: ", manifest)
@@ -192,8 +237,8 @@ document.getElementById('instantiateComponentNFT').onclick = async function () {
 
   
 
-  resourceAddress = commitReceipt.details.referenced_global_entities[1]
-  document.getElementById('gumAddressNFT').innerText = resourceAddress;
+  const resourceAddressNFT = commitReceipt.details.referenced_global_entities[1]
+  document.getElementById('gumAddressNFT').innerText = resourceAddressNFT;
 
   console.log('componentAddressNFT---', componentAddress,resourceAddress)
 }
@@ -201,8 +246,8 @@ document.getElementById('instantiateComponentNFT').onclick = async function () {
 document.getElementById('buyGumballNFT').onclick = async function () {
 
   let manifest = new ManifestBuilder()
-    .withdrawFromAccountByAmount(accountAddress, 1, "resource_tdx_b_1qppa8892w06hk0qz4uaxc7fpjc3vkxl44vpk5zmaqwqqyjtv9q")
-    .takeFromWorktopByAmount(1, "resource_tdx_b_1qppa8892w06hk0qz4uaxc7fpjc3vkxl44vpk5zmaqwqqyjtv9q", "sljg_bucket")
+    .withdrawFromAccountByAmount(accountAddress, 1, resourceAddress)
+    .takeFromWorktopByAmount(1, resourceAddress, "sljg_bucket")
     .callMethod(componentAddress, "buy_random_card", [Bucket("sljg_bucket")])
     .callMethod(accountAddress, "deposit_batch", [Expression("ENTIRE_WORKTOP")])
     .build()
@@ -246,10 +291,14 @@ document.getElementById('buyGumballNFT').onclick = async function () {
 
 document.getElementById('buySpecialNFT').onclick = async function () {
 
+  const count_tokens_buy_special_card = document.getElementById("count_tokens_buy_special_card").value;
+  const localID_special_card = document.getElementById("localID_special_card").value;
+  
+
   let manifest = new ManifestBuilder()
-    .withdrawFromAccountByAmount(accountAddress, 6, "resource_tdx_b_1qppa8892w06hk0qz4uaxc7fpjc3vkxl44vpk5zmaqwqqyjtv9q") 
-    .takeFromWorktopByAmount(6, "resource_tdx_b_1qppa8892w06hk0qz4uaxc7fpjc3vkxl44vpk5zmaqwqqyjtv9q", "sljg_bucket")
-    .callMethod(componentAddress, "buy_special_card", [NonFungibleId("#1#"),Bucket("sljg_bucket")]) //insteaof of passing 2, we need to define the NonFungibleLocalId by importing check discord
+    .withdrawFromAccountByAmount(accountAddress, count_tokens_buy_special_card, resourceAddress) 
+    .takeFromWorktopByAmount(count_tokens_buy_special_card, resourceAddress, "sljg_bucket")
+    .callMethod(componentAddress, "buy_special_card", [localID_special_card,Bucket("sljg_bucket")])
     .callMethod(accountAddress, "deposit_batch", [Expression("ENTIRE_WORKTOP")])
     .build()
     .toString();
