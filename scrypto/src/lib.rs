@@ -9,6 +9,16 @@ pub enum Color {
     Green,
 }
 
+#[derive(NonFungibleData)]
+pub struct NFTData{
+    name:String,
+    asset_tag:String,
+    weather:String,
+    landscape:String,
+    time:String,
+    country:String,
+}
+
 #[derive(ScryptoCategorize, ScryptoEncode, ScryptoDecode, LegacyDescribe)]
 pub enum Rarity {
     Common,
@@ -28,18 +38,34 @@ pub struct MagicCard {
 #[blueprint]
 mod gumball_machine {
     struct GumballMachine {
+        //All mined gumballs store here
         gumballs: Vault,
+        //A XRD vault that collects all XRD payments
         collected_xrd: Vault,
+        //Price of gumballs
         price: Decimal,
+        //Badge authorization
         admin_mint_badge: Vault,
-        admin_badge: ResourceAddress,
+        //Special Cards container
+        special_cards: Vault,
+        /// The price for each special card
+        special_card_prices: HashMap<NonFungibleLocalId, Decimal>,
+        /// The resource address of all random cards
+        random_card_resource_address: ResourceAddress,
+        /// The price of each random card
+        random_card_price: Decimal,
+        /// A counter for ID generation
+        random_card_id_counter: u64,
+        /// A vault that collects all custom payments
+        collected_srjg: Vault,
     }
 
     impl GumballMachine {
         // given a price in XRD, creates a ready-to-use gumball machine
-        pub fn instantiate_gumball_machine(price: Decimal) -> (ComponentAddress, Bucket) {
+        pub fn instantiate_gumball_machine(price: Decimal) -> ComponentAddress {
             let admin_mint_badge = ResourceBuilder::new_fungible()
                 .divisibility(DIVISIBILITY_NONE)
+                .metadata("name", "Admin Badge")
                 .mint_initial_supply(1);
 
             // create a new Gumball resource, with a fixed quantity
@@ -52,48 +78,84 @@ mod gumball_machine {
                 .mintable(rule!(require(admin_mint_badge.resource_address())), LOCKED)
                 .burnable(rule!(require(admin_mint_badge.resource_address())), LOCKED)
                 .mint_initial_supply(10000);
+            
+            let special_cards_bucket = ResourceBuilder::new_integer_non_fungible()
+                .metadata("name", "Jungler Digital Artwork Special")
+                .metadata(
+                    "description",
+                    "Jungler Digital artwork & Protector of a portion of rainforest"
+                )
+                .mint_initial_supply([
+                    (
+                        IntegerNonFungibleLocalId::new(1u64),
+                        NFTData{
+                            name:String::from("Baobab Tree"),
+                            asset_tag:String::from("https://images.unsplash.com/photo-1502082553048-f009c37129b9?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80"),
+                            landscape:String::from("AI"),
+                            weather:String::from("AI"),
+                            time:String::from("sunset"),
+                            country:String::from("srilanka")
+                        }
+                    ),
+                    (
+                        IntegerNonFungibleLocalId::new(2u64),
+                        NFTData{
+                            name:String::from("Sandpaper Flower"),
+                            asset_tag:String::from("https://images.unsplash.com/photo-1502082553048-f009c37129b9?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80"),
+                            landscape:String::from("glade"),
+                            weather:String::from("rainy"),
+                            time:String::from("daytime"),
+                            country:String::from("srilanka")
+                        }
+                    ),
+                    (
+                        IntegerNonFungibleLocalId::new(3u64),
+                        NFTData{
+                            name:String::from("Banyan Tree"),
+                            asset_tag:String::from("https://images.unsplash.com/photo-1487139975590-b4f1dce9b035?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=988&q=80"),
+                            landscape:String::from("tropical scenery"),
+                            weather:String::from("rainy"),
+                            time:String::from("sunset"),
+                            country:String::from("srilanka")
+                        }
+                    ),
+                ]);
 
-            let admin_badge = ResourceBuilder::new_fungible()
-                .divisibility(DIVISIBILITY_NONE)
-                .metadata("name", "admin_badge_jungler")
-                .metadata("symbol", "AJG")
+            let random_card_resource_address = ResourceBuilder::new_integer_non_fungible()
+                .metadata("name", "Jungler Digital artwork")
                 .mintable(rule!(require(admin_mint_badge.resource_address())), LOCKED)
                 .burnable(rule!(require(admin_mint_badge.resource_address())), LOCKED)
+                .updateable_non_fungible_data(
+                    rule!(require(admin_mint_badge.resource_address())),
+                    LOCKED
+                )
                 .create_with_no_initial_supply();
 
-            // Using our minting authority badge, mint a single admin badge
-            let first_admin_badge = admin_mint_badge.authorize(|| {
-                let admin_badge_manager = borrow_resource_manager!(admin_badge);
-                admin_badge_manager.mint(1)
-            });
 
             // populate a GumballMachine struct and instantiate a new component
-            let gumball_machine_component = (Self {
+            (Self {
                 admin_mint_badge: Vault::with_bucket(admin_mint_badge),
+                collected_srjg: Vault::new(bucket_of_gumballs.resource_address()), 
                 gumballs: Vault::with_bucket(bucket_of_gumballs),
-                admin_badge: admin_badge,
                 collected_xrd: Vault::new(RADIX_TOKEN),
                 price: price,
-            }).instantiate();
-
-            let component_address = gumball_machine_component.globalize();
-
-            (component_address, first_admin_badge)
+                special_cards: Vault::with_bucket(special_cards_bucket),
+                special_card_prices: HashMap::from([
+                    (NonFungibleLocalId::Integer((1u64).into()), (2).into()),
+                    (NonFungibleLocalId::Integer((2u64).into()), (4).into()),
+                    (NonFungibleLocalId::Integer((3u64).into()), (3).into()),
+                ]),
+                random_card_resource_address,
+                random_card_price: (1).into(),
+                random_card_id_counter: 0,
+            }).instantiate()
+            .globalize()
         }
 
         pub fn get_price(&self) -> Decimal {
             self.price
         }
 
-        pub fn destroy_admin_badge(&mut self, to_destroy: Bucket) {
-            assert!(
-                to_destroy.resource_address() == self.admin_badge,
-                "Cannot destroy the contents of this bucket!"
-            );
-            self.admin_mint_badge.authorize(|| {
-                to_destroy.burn();
-            })
-        }
 
         pub fn destroy_tokens(&mut self, tokens: Bucket) {
             assert!(
@@ -105,19 +167,6 @@ mod gumball_machine {
             })
         }
 
-        // pub fn destroy_tokens(&mut self, badge:Bucket, tokens: Bucket) {
-        //     assert!(
-        //         tokens.resource_address() == self.gumballs.resource_address(),
-        //         "Cannot destroy the contents of this token or coin"
-        //     );
-        //     assert!(
-        //         badge.resource_address() == self.admin_badge,
-        //         "Required badge to burn"
-        //     );
-        //     self.admin_mint_badge.authorize(|| {
-        //         tokens.burn();
-        //     })
-        // }
 
         pub fn buy_gumball(
             &mut self,
@@ -129,111 +178,12 @@ mod gumball_machine {
                 "Not enough tokens or coins sent!"
             );
 
-            //loan_amount* dec!("1.001")
-
             let our_share = payment.take(gumball_tokens * self.price);
             self.collected_xrd.put(our_share);
 
-            // we could have simplified the above into a single line, like so:
-            // self.collected_xrd.put(payment.take(self.price));
-
-            // return a tuple containing a gumball, plus whatever change is left on the input payment (if any)
-            // if we're out of gumballs to give, we'll see a runtime error when we try to grab one
             (self.gumballs.take(gumball_tokens), payment)
         }
-    }
-}
 
-#[blueprint]
-mod hello_nft {
-    struct HelloNft {
-        /// A vault that holds all our special cards
-        special_cards: Vault,
-        /// The price for each special card
-        special_card_prices: HashMap<NonFungibleLocalId, Decimal>,
-        /// A vault that holds the mint badge
-        random_card_mint_badge: Vault,
-        /// The resource address of all random cards
-        random_card_resource_address: ResourceAddress,
-        /// The price of each random card
-        random_card_price: Decimal,
-        /// A counter for ID generation
-        random_card_id_counter: u64,
-        /// A vault that collects all XRD payments
-        collected_srjg: Vault,
-        accepted_payment_token: ResourceAddress,
-    }
-
-    impl HelloNft {
-        pub fn instantiate_component(accepted_payment_token: ResourceAddress) -> ComponentAddress {
-            // Creates a fixed set of NFTs
-            let special_cards_bucket = ResourceBuilder::new_integer_non_fungible()
-                .metadata("name", "Jungler Digital Artwork special collection")
-                .metadata(
-                    "description",
-                    "Jungler Digital artwork & Protector of a portion of rainforest"
-                )
-                .mint_initial_supply([
-                    (
-                        IntegerNonFungibleLocalId::new(1u64),
-                        MagicCard {
-                            color: Color::Black,
-                            rarity: Rarity::MythicRare,
-                            level: 3,
-                        },
-                    ),
-                    (
-                        IntegerNonFungibleLocalId::new(2u64),
-                        MagicCard {
-                            color: Color::Green,
-                            rarity: Rarity::Rare,
-                            level: 5,
-                        },
-                    ),
-                    (
-                        IntegerNonFungibleLocalId::new(3u64),
-                        MagicCard {
-                            color: Color::Red,
-                            rarity: Rarity::Uncommon,
-                            level: 100,
-                        },
-                    ),
-                ]);
-
-            // Create an NFT resource with mutable supply
-            let random_card_mint_badge = ResourceBuilder::new_fungible()
-                .divisibility(DIVISIBILITY_NONE)
-                .metadata("name", "Jungler Digital Artwork Badge")
-                .mint_initial_supply(1);
-
-            let random_card_resource_address = ResourceBuilder::new_integer_non_fungible()
-                .metadata("name", "Jungler Digital artwork")
-                .mintable(rule!(require(random_card_mint_badge.resource_address())), LOCKED)
-                .burnable(rule!(require(random_card_mint_badge.resource_address())), LOCKED)
-                .updateable_non_fungible_data(
-                    rule!(require(random_card_mint_badge.resource_address())),
-                    LOCKED
-                )
-                .create_with_no_initial_supply();
-
-            // Instantiate our component
-            (Self {
-                special_cards: Vault::with_bucket(special_cards_bucket),
-                special_card_prices: HashMap::from([
-                    (NonFungibleLocalId::Integer((1u64).into()), (2).into()),
-                    (NonFungibleLocalId::Integer((2u64).into()), (4).into()),
-                    (NonFungibleLocalId::Integer((3u64).into()), (3).into()),
-                ]),
-                random_card_mint_badge: Vault::with_bucket(random_card_mint_badge),
-                random_card_resource_address,
-                random_card_price: (1).into(),
-                random_card_id_counter: 0,
-                collected_srjg: Vault::new(accepted_payment_token), //need to strictly hardcode the resource address of gumball or instantie these in gumball section
-                accepted_payment_token, //need to hardcode or mix with gumball section
-            })
-                .instantiate()
-                .globalize()
-        }
 
         pub fn buy_special_card(
             &mut self,
@@ -241,7 +191,7 @@ mod hello_nft {
             mut payment: Bucket
         ) -> (Bucket, Bucket) {
             assert!(
-                payment.resource_address() == self.accepted_payment_token,
+                payment.resource_address() == self.collected_srjg.resource_address(),
                 "send correct token"
             );
 
@@ -258,7 +208,7 @@ mod hello_nft {
 
         pub fn buy_random_card(&mut self, mut payment: Bucket) -> (Bucket, Bucket) {
             assert!(
-                payment.resource_address() == self.accepted_payment_token,
+                payment.resource_address() == self.collected_srjg.resource_address(),
                 "Please send correct token"
             );
 
@@ -272,7 +222,7 @@ mod hello_nft {
                 rarity: Self::random_rarity(random_seed),
                 level: (random_seed as u8) % 8,
             };
-            let nft_bucket = self.random_card_mint_badge.authorize(|| {
+            let nft_bucket = self.admin_mint_badge.authorize(|| {
                 borrow_resource_manager!(self.random_card_resource_address).mint_non_fungible(
                     &NonFungibleLocalId::Integer(self.random_card_id_counter.into()),
                     new_card
@@ -305,5 +255,6 @@ mod hello_nft {
                 _ => panic!(),
             }
         }
+
     }
 }

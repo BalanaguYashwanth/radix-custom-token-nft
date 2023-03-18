@@ -5,7 +5,6 @@ import {
   Bucket,
   Expression,
   ResourceAddress,
-  NonFungibleId
 } from '@radixdlt/radix-dapp-toolkit'
 const dAppId = 'account_tdx_b_1pryv0jqk6eqwfd90hwjjxgy6pmrwuwzp2tkqycp0flqqlgljf3'
 
@@ -191,58 +190,6 @@ console.log('Buy Gumball Committed Details Receipt', commitReceipt)
 console.log("Buy NFT getMethods Result: ", result)
 }
 
-document.getElementById('instantiateComponentNFT').onclick = async function () {
-  let packageAddress = document.getElementById("packageAddressNFT").value;
-
-  let manifest = new ManifestBuilder()
-    .callMethod(accountAddress, "create_proof", [ResourceAddress(resourceAddress)])
-    .callFunction(packageAddress, "HelloNft", "instantiate_component", [ResourceAddress(resourceAddress)])
-    .build()
-    .toString();
-  console.log("Instantiate Manifest: ", manifest)
-  // Send manifest to extension for signing
-  const result = await rdt
-    .sendTransaction({
-      transactionManifest: manifest,
-      version: 1,
-    })
-
-  if (result.isErr()) throw result.error
-
-  console.log("Intantiate WalletSDK Result: ", result.value)
-
-  // ************ Fetch the transaction status from the Gateway API ************
-  let status = await transactionApi.transactionStatus({
-    transactionStatusRequest: {
-      intent_hash_hex: result.value.transactionIntentHash
-    }
-  });
-  console.log('Instantiate TransactionApi transaction/status:', status)
-
-  // ************* fetch component address from gateway api and set componentAddress variable **************
-  let commitReceipt = await transactionApi.transactionCommittedDetails({
-    transactionCommittedDetailsRequest: {
-      transaction_identifier: {
-        type: 'intent_hash',
-        value_hex: result.value.transactionIntentHash
-      }
-    }
-  })
-  console.log('Instantiate Committed Details Receipt', commitReceipt)
-
-  // ****** set componentAddress and resourceAddress variables with gateway api commitReciept payload ******
-  // componentAddress = commitReceipt.details.receipt.state_updates.new_global_entities[0].global_address <- long way -- shorter way below ->
-  componentAddress = commitReceipt.details.referenced_global_entities[0]
-  document.getElementById('componentAddressNFT').innerText = componentAddress;
-
-  
-
-  resourceAddressNFT = commitReceipt.details.referenced_global_entities[1]
-  // resourceAddressNFT = "resource_sim1qp8stnug78ghwf57e7qqmufyh3xj3adl2j7fd9h8nm3q4l9c0m"
-  document.getElementById('gumAddressNFT').innerText = resourceAddressNFT;
-
-  console.log('componentAddressNFT---', componentAddress,resourceAddress)
-}
 
 document.getElementById('buySpecialNFT').onclick = async function () {
 
