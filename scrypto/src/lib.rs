@@ -168,7 +168,7 @@ mod hello_nft {
         pub fn instantiate_component(accepted_payment_token: ResourceAddress) -> ComponentAddress {
             // Creates a fixed set of NFTs
             let special_cards_bucket = ResourceBuilder::new_integer_non_fungible()
-                .metadata("name", "Jungler Digital Artwork collection")
+                .metadata("name", "Jungler Digital Artwork special collection")
                 .metadata(
                     "description",
                     "Jungler Digital artwork & Protector of a portion of rainforest"
@@ -203,7 +203,7 @@ mod hello_nft {
             // Create an NFT resource with mutable supply
             let random_card_mint_badge = ResourceBuilder::new_fungible()
                 .divisibility(DIVISIBILITY_NONE)
-                .metadata("name", "Jungler Digital Artwork Mint Badge")
+                .metadata("name", "Jungler Digital Artwork Badge")
                 .mint_initial_supply(1);
 
             let random_card_resource_address = ResourceBuilder::new_integer_non_fungible()

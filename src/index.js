@@ -43,6 +43,7 @@ let componentAddress //: string  // GumballMachine component address
 let resourceAddress //: string // GUM resource address
 // You can use this packageAddress to skip the dashboard publishing step package_tdx_b_1qxtzcuyh8jmcp9khn72k0gs4fp8gjqaz9a8jsmcwmh9qhax345
 let xrdAddress = "resource_tdx_b_1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq8z96qp" 
+let resourceAddressNFT;
 
 // ************ Instantiate component and fetch component and resource addresses *************
 document.getElementById('instantiateComponent').onclick = async function () {
@@ -144,16 +145,15 @@ document.getElementById('buyGumball').onclick = async function () {
   })
   console.log('buyGumball Committed Details Receipt', commitReceipt)
 
-  resourceAddress = commitReceipt.details.receipt.state_updates.created_substates[1].substate_data.resource_amount.resource_address
   // Show the receipt on the DOM
   document.getElementById('receipt').innerText = JSON.stringify(commitReceipt.details.receipt, null, 2);
+  resourceAddress = commitReceipt.details.receipt.state_updates.created_substates[1].substate_data.resource_amount.resource_address
 };
 
 document.getElementById("burnGumball").onclick = async function(){
 
   const count_burn_gumballs = document.getElementById("burn_gumballs").value;
   let manifest = new ManifestBuilder()
-  // .callMethod(accountAddress, "create_proof", [ResourceAddress(resourceAddress)])
   .withdrawFromAccountByAmount(accountAddress, count_burn_gumballs, resourceAddress)
   .takeFromWorktopByAmount(count_burn_gumballs, resourceAddress, "sljg_bucket")
   .callMethod(componentAddress, "destroy_tokens", [Bucket("sljg_bucket")])
@@ -237,11 +237,61 @@ document.getElementById('instantiateComponentNFT').onclick = async function () {
 
   
 
-  const resourceAddressNFT = commitReceipt.details.referenced_global_entities[1]
+  resourceAddressNFT = commitReceipt.details.referenced_global_entities[1]
+  // resourceAddressNFT = "resource_sim1qp8stnug78ghwf57e7qqmufyh3xj3adl2j7fd9h8nm3q4l9c0m"
   document.getElementById('gumAddressNFT').innerText = resourceAddressNFT;
 
   console.log('componentAddressNFT---', componentAddress,resourceAddress)
 }
+
+document.getElementById('buySpecialNFT').onclick = async function () {
+
+  const count_tokens_buy_special_card = document.getElementById("count_tokens_buy_special_card").value;
+  // const localID_special_card = "#1#"
+  let localID_special_card = document.getElementById("localID_special_card").value;
+  localID_special_card = localID_special_card.toString()
+  let manifest = new ManifestBuilder()
+  .withdrawFromAccountByAmount(accountAddress, count_tokens_buy_special_card, resourceAddress)
+  .takeFromWorktopByAmount(count_tokens_buy_special_card, resourceAddress, "sljg_bucket")
+  .callMethod(componentAddress, "buy_special_card", [`NonFungibleLocalId(${localID_special_card})`,Bucket("sljg_bucket")])
+  .callMethod(accountAddress, "deposit_batch", [Expression("ENTIRE_WORKTOP")])
+  .build()
+  .toString();
+
+  console.log('buy_random_card manifest: ', manifest)
+
+  const result = await rdt
+    .sendTransaction({
+      transactionManifest: manifest,
+      version: 1,
+    })
+
+  if (result.isErr()) throw result.error
+
+  console.log("Buy NFT getMethods Result: ", result)
+
+  // Fetch the transaction status from the Gateway SDK
+  let status = await transactionApi.transactionStatus({
+    transactionStatusRequest: {
+      intent_hash_hex: result.value.transactionIntentHash
+    }
+  });
+  console.log('Buy NFT TransactionAPI transaction/status: ', status)
+
+  // fetch commit reciept from gateway api 
+  let commitReceipt = await transactionApi.transactionCommittedDetails({
+    transactionCommittedDetailsRequest: {
+      transaction_identifier: {
+        type: 'intent_hash',
+        value_hex: result.value.transactionIntentHash
+      }
+    }
+  })
+  console.log('Buy Gumball Committed Details Receipt', commitReceipt)
+
+  // Show the receipt on the DOM
+  // document.getElementById('receiptNFT').innerText = JSON.stringify(commitReceipt.details.receipt, null, 2);
+};
 
 document.getElementById('buyGumballNFT').onclick = async function () {
 
@@ -287,54 +337,4 @@ document.getElementById('buyGumballNFT').onclick = async function () {
 
   // Show the receipt on the DOM
   document.getElementById('receiptNFT').innerText = JSON.stringify(commitReceipt.details.receipt, null, 2);
-};
-
-document.getElementById('buySpecialNFT').onclick = async function () {
-
-  const count_tokens_buy_special_card = document.getElementById("count_tokens_buy_special_card").value;
-  const localID_special_card = document.getElementById("localID_special_card").value;
-  
-
-  let manifest = new ManifestBuilder()
-    .withdrawFromAccountByAmount(accountAddress, count_tokens_buy_special_card, resourceAddress) 
-    .takeFromWorktopByAmount(count_tokens_buy_special_card, resourceAddress, "sljg_bucket")
-    .callMethod(componentAddress, "buy_special_card", [localID_special_card,Bucket("sljg_bucket")])
-    .callMethod(accountAddress, "deposit_batch", [Expression("ENTIRE_WORKTOP")])
-    .build()
-    .toString();
-  
-  console.log('buy_special_card manifest: ', manifest)
-
-  // Send manifest to extension for signing
-  const result = await rdt
-    .sendTransaction({
-      transactionManifest: manifest,
-      version: 1,
-    })
-
-  if (result.isErr()) throw result.error
-
-  console.log("Buy NFT getMethods Result: ", result)
-
-  // Fetch the transaction status from the Gateway SDK
-  let status = await transactionApi.transactionStatus({
-    transactionStatusRequest: {
-      intent_hash_hex: result.value.transactionIntentHash
-    }
-  });
-  console.log('Buy NFT TransactionAPI transaction/status: ', status)
-
-  // fetch commit reciept from gateway api 
-  let commitReceipt = await transactionApi.transactionCommittedDetails({
-    transactionCommittedDetailsRequest: {
-      transaction_identifier: {
-        type: 'intent_hash',
-        value_hex: result.value.transactionIntentHash
-      }
-    }
-  })
-  console.log('Buy Gumball Committed Details Receipt', commitReceipt)
-
-  // Show the receipt on the DOM
-  document.getElementById('receiptSpecialNFT').innerText = JSON.stringify(commitReceipt.details.receipt, null, 2);
 };
