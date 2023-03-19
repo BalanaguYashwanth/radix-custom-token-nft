@@ -14,6 +14,16 @@
   <div class="connectBtn">
     <radix-connect-button />
   </div>
+  
+  <h1> User Balanace</h1>
+  <div class="container">
+    <p>XRD Balance: <span id="xrd_balanace"></span></p>
+    <p>SLJG Balanace: <span id="sljg_balanace"></span></p>
+  </div>
+  <!-- disabled get Balanace button -->
+  <p><button id="get_balanace_api">Get Balance API</button></p>
+  <p><button id="get_balanace">Get Balance</button></p>
+ 
   <h1>Gumball Machine</h1>
 
   <div class="container">
@@ -67,15 +77,14 @@
   </div>
 
   <h2>3. Buy Special NFT</h2>
+  <div class="container">
+    <p> Updated List of NFTs: <span id="list_nft_items"></span> </p>
+  </div>
+  <br />
   <input type="text" placeholder="Enter the amount of tokens to buy for special card" id="count_tokens_buy_special_card" />
   <input type="text" placeholder="Nonfungible id of special card" id="localID_special_card">
 
   <p><button id="buySpecialNFT">Buy Special NFT</button></p>
-  <div class="containerSpecialNFT">
-    <p>Receipt Special NFT:<br>
-    <pre id="receiptSpecialNFT"></pre>
-    </p>
-  </div>
 </body>
 
 </html>

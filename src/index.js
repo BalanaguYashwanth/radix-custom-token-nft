@@ -42,8 +42,132 @@ let componentAddress //: string  // GumballMachine component address
 let resourceAddress //: string // GUM resource address
 // You can use this packageAddress to skip the dashboard publishing step package_tdx_b_1qxtzcuyh8jmcp9khn72k0gs4fp8gjqaz9a8jsmcwmh9qhax345
 let xrdAddress = "resource_tdx_b_1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq8z96qp" 
-let resourceAddressNFT;
+let sljgAddress = "resource_tdx_b_1qpd3sqwc09qt0zp7myuunjz2rcm5gracwppgeccxtm6qn8fhpc"
+let NFT_IDs;
 
+//update the balance once purchase NFT purchase had done
+document.getElementById('get_balanace_api').onclick = async function getBalanaceFromAPI(){
+async function api() {
+  //  console.log(process.env.BETAURL); //check this important
+  const data = await fetch("https://betanet.radixdlt.com/entity/fungibles", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      address:
+        accountAddress,
+    }),
+  });
+  const { fungibles } = await data.json();
+  return fungibles?.items || [];
+}
+
+const getBalanaces = (items) => {
+  let XRD = 0,
+    CustomToken = 0;
+  for (let item of items) {
+    if (item.amount.address === sljgAddress) {
+      CustomToken = item.amount.value;
+    }
+    if (item.amount.address === xrdAddress) {
+      XRD = item.amount.value;
+    }
+  }
+  return { XRD, CustomToken };
+};
+const fungibleItems = await api() || []
+const {XRD, CustomToken}  = getBalanaces(fungibleItems)
+console.log('values---->',XRD, CustomToken)
+document.getElementById('xrd_balanace').innerHTML = XRD;
+document.getElementById('sljg_balanace').innerHTML = CustomToken;
+}
+
+async function getNonfungiblesResources() {
+  const data = await fetch(
+    "https://betanet.radixdlt.com/entity/non-fungibles",
+    {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        address:
+        componentAddress,
+      }),
+    }
+  );
+  const { non_fungibles } = await data.json();
+  const { items } = non_fungibles || [];
+  
+  NFT_IDs = items && items[0]?.address || "";
+  return NFT_IDs || "";
+}
+
+const getListOfNFTIds = async (resourceAddress) => {
+  const data = await fetch(
+    "https://betanet.radixdlt.com/entity/non-fungible/ids",
+    {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        address:
+        componentAddress,
+        resource_address: resourceAddress,
+      }),
+    }
+  );
+  const { non_fungible_ids } = await data.json();
+  return non_fungible_ids?.items || []; 
+};
+
+
+
+
+document.getElementById('get_balanace').onclick = async function getXRDBalanace(){
+  const manifest = new ManifestBuilder()
+        .callMethod(accountAddress, "balance", [ResourceAddress("resource_tdx_b_1qpd3sqwc09qt0zp7myuunjz2rcm5gracwppgeccxtm6qn8fhpc")])
+        .build()
+        .toString();
+  
+      console.log("Instantiate Manifest: ", manifest)
+      // Send manifest to extension for signing
+      const result = await rdt
+        .sendTransaction({
+          transactionManifest: manifest,
+          version: 1,
+        })
+  
+        if (result.isErr()) throw result.error
+    
+    console.log("Intantiate WalletSDK Result: ", result.value)
+  
+    // ************ Fetch the transaction status from the Gateway API ************
+    let status = await transactionApi.transactionStatus({
+      transactionStatusRequest: {
+        intent_hash_hex: result.value.transactionIntentHash
+      }
+    });
+    console.log('Instantiate TransactionApi transaction/status:', status)
+  
+    // ************* fetch output **************
+    let commitReceipt = await transactionApi.transactionCommittedDetails({
+      transactionCommittedDetailsRequest: {
+        transaction_identifier: {
+          type: 'intent_hash',
+          value_hex: result.value.transactionIntentHash
+        }
+      }
+    })
+    document.getElementById("sljg_balanace").innerHTML = commitReceipt.details.receipt.output[1].data_json;
+    console.log('resource address held by the account: ', commitReceipt.details.receipt.output[1].data_json);
+}
+// getXRDBalanace()
 // ************ Instantiate component and fetch component and resource addresses *************
 document.getElementById('instantiateComponent').onclick = async function () {
   let packageAddress = document.getElementById("packageAddress").value;
@@ -190,6 +314,15 @@ console.log('Buy Gumball Committed Details Receipt', commitReceipt)
 console.log("Buy NFT getMethods Result: ", result)
 }
 
+const convertNFTIdsToString = (idArray)=>{
+  let count="";
+  for(let id of idArray){
+    console.log('id.non_fungible_ids',id )
+    count  = count +" "+id.non_fungible_id
+  }
+  return count
+}
+
 
 document.getElementById('buySpecialNFT').onclick = async function () {
 
@@ -236,6 +369,9 @@ document.getElementById('buySpecialNFT').onclick = async function () {
   })
   console.log('Buy Gumball Committed Details Receipt', commitReceipt)
 
+  const nftResourceAddress = await getNonfungiblesResources()
+  const listOfNFTIds = await getListOfNFTIds(nftResourceAddress);
+  document.getElementById("list_nft_items").innerHTML  = convertNFTIdsToString(listOfNFTIds)
   // Show the receipt on the DOM
   // document.getElementById('receiptNFT').innerText = JSON.stringify(commitReceipt.details.receipt, null, 2);
 };

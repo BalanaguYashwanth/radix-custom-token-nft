@@ -9,6 +9,10 @@ body {
     margin-bottom: 3.33rem;
 }
 
+#get_balanace{
+    display: none;
+}
+
 button {
     padding: 1rem;
     background-color: #052CC0;
