@@ -1,0 +1,105 @@
+@import url("https://fonts.googleapis.com/css2?family=Inconsolata");
+
+body {
+  font-family: "Inconsolata";
+  background: black;
+  color: white;
+  font-weight: 400;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.center {
+  text-align: center;
+}
+
+header h1 {
+  font-size: 80px;
+}
+
+section {
+  justify-content: space-around;
+  /* border: 1px solid red; */
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+article {
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px;
+  width: 250px;
+  height: 250px;
+  margin: auto;
+}
+
+article p {
+  text-transform: capitalize;
+  text-align: center;
+  color: white;
+}
+
+img {
+  border-radius: 10px;
+  object-fit: cover;
+  width: 100%;
+  max-width: 250px;
+  height: 250px;
+}
+
+article button {
+  color: blue;
+  padding: 0;
+  border: none;
+  background: none;
+}
+
+.connectBtn {
+  padding: 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+#buy_popup_fungible_button{
+  align-self: center;
+  border-radius: 15px;
+  text-transform: uppercase;
+  height: 40px;
+  width: 200px;
+  background-color: black;
+  color: white;
+}
+
+#form{
+  text-align: center;
+  display: none;
+}
+
+#buy_fungible_input{
+  border-radius: 10px;
+  margin: 7px 0px;
+  background-color: black;
+  color: white;
+  height: 30px;
+  text-align: center;
+  border-radius: 6px;
+  border: 1px solid rgb(67, 60, 60);
+}
+
+#buy_fungibles_button{
+  background-color: black;
+  color: white;
+  background: none;
+  border-radius: 6px;
+  border: 1px solid rgb(67, 60, 60);
+}
+
+::placeholder {
+  text-align: center;
+  padding: 10px;
+}
+

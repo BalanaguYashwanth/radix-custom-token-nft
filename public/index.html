@@ -2,89 +2,68 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="style.css">
-  <title>Betanet-V2 dApp Toolkit Example</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./nftTemplate.css">
 </head>
 
 <body>
-  <noscript>You need to enable JavaScript to run this app.</noscript>
-  <script type="module" src="/dist/index.js"></script>
-  <div class="connectBtn">
-    <radix-connect-button />
-  </div>
-  
-  <h1> User Balanace</h1>
-  <div class="container">
-    <p>XRD Balance: <span id="xrd_balanace"></span></p>
-    <p>SLJG Balanace: <span id="sljg_balanace"></span></p>
-  </div>
-  <!-- disabled get Balanace button -->
-  <p><button id="get_balanace_api">Get Balance API</button></p>
-  <p><button id="get_balanace">Get Balance</button></p>
- 
-  <h1>Gumball Machine</h1>
-
-  <div class="container">
-    <p>Account Name:
-    <pre id="accountName"></pre>
-    </p>
-    <p>Account Address:
-    <pre id="accountAddress"></pre>
-    </p>
-  </div>
-
-
-  <h2>2. Instantiate Gumball Machine</h2>
-  <input type="text" placeholder="Package address" id="packageAddress" />
-  <input type="text" placeholder="Set Gumball Price" id="set_price">
-  <p><button id="instantiateComponent">Instantiate component</button></p>
-  <div class="container">
-    <p>Component Address: <span id="componentAddress"></span></p>
-    <p>GUM token address: <span id="gumAddress"></span></p>
-  </div>
-
-
-  <h2>3. Buy Gumball</h2>
-  <input type="text" placeholder="Enter XRD amount to purchase token" id="purchase">
-  <input type="text" placeholder="Enter number of tokens to buy" id="count_gumballs">
-  <p><button id="buyGumball">Buy JUNGLER</button></p>
- 
-  <div class="container">
-    <p>Receipt:<br>
-    <pre id="receipt"></pre>
-    </p>
-  </div>
-
-  <h2>3. Burn Gumball</h2>
-  <input type="text" placeholder="Enter number of tokens to burn" id="burn_gumballs">
-  <p><button id="burnGumball">Destroy JUNGLER</button></p>
-  <div class="container">
-    <p>Receipt:<br>
-    <pre id="receipt"></pre>
-    </p>
-  </div>
-
-
-
-  <h2>3. Buy NFT</h2>
-  <p><button id="buyGumballNFT">Buy NFT</button></p>
-  <div class="containerNFT">
-    <p>Receipt:<br>
-    <pre id="receiptNFT"></pre>
-    </p>
-  </div>
-
-  <h2>3. Buy Special NFT</h2>
-  <div class="container">
-    <p> Updated List of NFTs: <span id="list_nft_items"></span> </p>
-  </div>
-  <br />
-  <input type="text" placeholder="Enter the amount of tokens to buy for special card" id="count_tokens_buy_special_card" />
-  <input type="text" placeholder="Nonfungible id of special card" id="localID_special_card">
-
-  <p><button id="buySpecialNFT">Buy Special NFT</button></p>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <script type="module" src="/dist/nftTemplate.js"></script> 
+    <header>
+        <h1 class="center"> <u> Hello NFT </u> </h1>
+    </header>
+    
+    <h1 class="center"> XRD Balance - <span id="xrd_balance">0</span> </h1>
+    <h1 class="center"> SLG Balance - <span id="slg_balance">0</span> </h1>
+    <button id="buy_popup_fungible_button"> Buy SLG token </button>
+    <div id="form">
+        <input id="buy_fungible_input" placeholder="Enter amount"/>
+        <button id="buy_fungibles_button"> buy </button>
+    </div>
+    <div class="connectBtn">
+     <radix-connect-button /> 
+    </div>
+    <hr /> <hr /> <hr /> 
+    <main style="margin-top:50px">
+        <section>
+            <article>
+                <img src="https://openseauserdata.com/files/c815f2b022636d7210e1b70e7c5e6f4c.jpg" />
+                <p> Baobab Tree nft <span id="nftID">#1#</span></p>
+                <button id="buySpecialNFT #1#"> BUYED </button>
+            </article>
+            <article>
+                <img
+                    src="https://render.fineartamerica.com/images/images-profile-flow/400/images/artworkimages/mediumlarge/2/yellowstone-national-park-mammoth-hot-kevin-mcneal.jpg" />
+                <p> Sandpaper Flower nft  <span id="nftID">#2#</span> </p>
+                <button id="buySpecialNFT #2#"> BUYED </button>
+            </article>
+            <article>
+                <img src="https://www.mattpaynephotography.com/images/xl/HS9A8757-copy-2.jpg" />
+                <p> Banyan Tree nft  <span id="nftID">#3#</span> </p>
+                <button id="buySpecialNFT #3#"> BUYED </button>
+            </article>
+            <article>
+                <img src="https://cdn.visualwilderness.com/wp-content/uploads/2011/04/Pastel-Palette.jpg" />
+                <p> jugler nft <span id="nftID">#4#</span> </p>
+                <button id="buySpecialNFT #4#"> BUYED </button>
+            </article>
+            <article>
+                <img
+                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYMGSvUd3_KCmzd3D0nn4li_qGBYcSdU7QM8avl6E3thCm0VguNA4Un5H86Qh-iZVVfK4&usqp=CAU" />
+                <p> jugler nft <span id="nftID">#5#</span> </p>
+                <button id="buySpecialNFT #5#"> BUYED </button>
+            </article>
+            <article>
+                <img
+                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLcg1Uh76caQMYnhwEmZGheCe5SqffCRM0kttf8Yv81FM-V4Pem3_mLOPVBnLEMSCcuRE&usqp=CAU" />
+                <p> jugler nft<span id="nftID">#6#</span> </p>
+                <button id="buySpecialNFT #6#"> BUYED </button>
+            </article>
+        </section>
+    </main>
 </body>
 
 </html>

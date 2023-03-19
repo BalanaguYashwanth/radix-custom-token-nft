@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css">
+  <title>Betanet-V2 dApp Toolkit Example</title>
+</head>
+
+<body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <script type="module" src="/dist/index.js"></script>
+  <div class="connectBtn">
+    <radix-connect-button />
+  </div>
+  
+  <h1> User Balanace</h1>
+  <div class="container">
+    <p>XRD Balance: <span id="xrd_balanace"></span></p>
+    <p>SLJG Balanace: <span id="sljg_balanace"></span></p>
+  </div>
+  <!-- disabled get Balanace button -->
+  <p><button id="get_balanace_api">Get Balance API</button></p>
+  <p><button id="get_balanace">Get Balance</button></p>
+ 
+  <h1>Gumball Machine</h1>
+
+  <div class="container">
+    <p>Account Name:
+    <pre id="accountName"></pre>
+    </p>
+    <p>Account Address:
+    <pre id="accountAddress"></pre>
+    </p>
+  </div>
+
+
+  <h2>2. Instantiate Gumball Machine</h2>
+  <input type="text" placeholder="Package address" id="packageAddress" />
+  <input type="text" placeholder="Set Gumball Price" id="set_price">
+  <p><button id="instantiateComponent">Instantiate component</button></p>
+  <div class="container">
+    <p>Component Address: <span id="componentAddress"></span></p>
+    <p>GUM token address: <span id="gumAddress"></span></p>
+  </div>
+
+
+  <h2>3. Buy Gumball</h2>
+  <input type="text" placeholder="Enter XRD amount to purchase token" id="purchase">
+  <input type="text" placeholder="Enter number of tokens to buy" id="count_gumballs">
+  <p><button id="buyGumball">Buy JUNGLER</button></p>
+ 
+  <div class="container">
+    <p>Receipt:<br>
+    <pre id="receipt"></pre>
+    </p>
+  </div>
+
+  <h2>3. Burn Gumball</h2>
+  <input type="text" placeholder="Enter number of tokens to burn" id="burn_gumballs">
+  <p><button id="burnGumball">Destroy JUNGLER</button></p>
+  <div class="container">
+    <p>Receipt:<br>
+    <pre id="receipt"></pre>
+    </p>
+  </div>
+
+
+
+  <h2>3. Buy NFT</h2>
+  <p><button id="buyGumballNFT">Buy NFT</button></p>
+  <div class="containerNFT">
+    <p>Receipt:<br>
+    <pre id="receiptNFT"></pre>
+    </p>
+  </div>
+
+  <h2>3. Buy Special NFT</h2>
+  <div class="container">
+    <p> Updated List of NFTs: <span id="list_nft_items"></span> </p>
+  </div>
+  <br />
+  <input type="text" placeholder="Enter the amount of tokens to buy for special card" id="count_tokens_buy_special_card" />
+  <input type="text" placeholder="Nonfungible id of special card" id="localID_special_card">
+
+  <p><button id="buySpecialNFT">Buy Special NFT</button></p>
+</body>
+
+</html>
